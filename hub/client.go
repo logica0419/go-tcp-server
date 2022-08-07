@@ -31,7 +31,7 @@ func (c *client) readLoop() {
 
 	for {
 		buf := make([]byte, 1024)
-		c.conn.SetReadDeadline(time.Now().Add(100 * time.Millisecond))
+		c.conn.SetReadDeadline(time.Now().Add(50 * time.Millisecond))
 
 		n, err := c.conn.Read(buf)
 		if err != nil {
@@ -39,7 +39,7 @@ func (c *client) readLoop() {
 				continue
 			}
 
-			log.Printf("Error reading from client %s: %s", c.id, err)
+			log.Printf("error: (*client).readLoop: %s: %s", c.id, err)
 			return
 		}
 
@@ -50,6 +50,9 @@ func (c *client) readLoop() {
 
 		content = append(content, buf[:n]...)
 		c.readChan <- content
+
+		log.Printf("(*client).readLoop: %s: %s", c.id, string(content))
+
 		content = content[:0]
 	}
 }
@@ -64,16 +67,12 @@ func (c *client) writeLoop() {
 	for {
 		select {
 		case <-t.C:
-			c.conn.SetWriteDeadline(time.Now().Add(100 * time.Millisecond))
+			c.conn.SetWriteDeadline(time.Now().Add(50 * time.Millisecond))
 
 			_, err := c.conn.Write([]byte("ping"))
 			if err != nil {
-				if errors.Is(err, os.ErrDeadlineExceeded) {
-					log.Printf("client closed: %s", c.id)
-					return
-				}
-
-				log.Printf("Error writing to client %s: %s", c.id, err)
+				log.Printf("error: (*client).writeLoop: %s: %s", c.id, err)
+				return
 			}
 
 		case content := <-c.writeChan:
@@ -83,6 +82,8 @@ func (c *client) writeLoop() {
 			if err != nil {
 				continue
 			}
+
+			log.Printf("(*client).writeLoop: %s: %s", c.id, string(content))
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net"
 
 	"github.com/oklog/ulid/v2"
@@ -27,13 +28,17 @@ func (h *hub) run() {
 	}
 }
 
-func (h *hub) runClient(conn net.Conn) {
+func (h *hub) connHandler(conn net.Conn) {
 	c := newClient(conn, h.readChan)
 	h.clients[c.id] = c
+
+	log.Printf("client %s connected", c.id)
 
 	go c.readLoop()
 	c.writeLoop()
 
 	conn.Close()
 	delete(h.clients, c.id)
+
+	log.Printf("client %s disconnected", c.id)
 }

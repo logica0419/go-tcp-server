@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	port := 8000
+	port := 8080
 	protocol := "tcp"
 
 	addr, err := net.ResolveTCPAddr(protocol, fmt.Sprintf(":%d", port))
@@ -33,6 +33,6 @@ func main() {
 			continue
 		}
 
-		go h.runClient(conn)
+		go h.connHandler(conn)
 	}
 }
