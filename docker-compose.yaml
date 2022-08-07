@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  hub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /run/hub
+    volumes:
+      - .:/run
+    ports:
+      - 8080:8080
