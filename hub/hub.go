@@ -20,14 +20,11 @@ func newHub() *hub {
 
 func (h *hub) run() {
 	for {
-		select {
-		case content := <-h.readChan:
-			for _, c := range h.clients {
-				c.write(content)
-			}
+		content := <-h.readChan
+		for _, c := range h.clients {
+			c.write(content)
 		}
 	}
-
 }
 
 func (h *hub) runClient(conn net.Conn) {
